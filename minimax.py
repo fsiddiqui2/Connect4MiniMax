@@ -3,17 +3,95 @@ import copy
 
 player1 = 1
 player2 = 2
-def evalGrid(grid: list[list[int]]) -> int:
-    #check for three in a row with empty spaces (horizontal, vertical, diagonal)
-    #check for two in a row with empty spaces (horizontal, vertical, diagonal)
-    #check for three in a row of opponent pieces (horizontal, vertical, diagonal)    
-    return random.randint(0, 5)
+
+#calculates score of grid at the start of a given player's turn
+def evalGrid(grid: list[list[int]], player: int) -> int:
+    #should check if there are two spaces available for a 2-in-a-row
+
+    score = 0;
+    n_rows = len(grid)
+    n_cols = len(grid[0])
+
+    #check for a vertical two or three in a row with empty space above
+    for col in range(n_cols):
+        #find first empty space in column
+        row = 0
+        while row < n_rows and grid[row][col] == 0:
+            row += 1
+
+        #check for three in a row below empty space
+        if row != 0 and row < n_rows - 2 and grid[row][col] == grid[row + 1][col] and grid[row][col] == grid[row + 2][col]:
+            if player == player1:
+                if grid[row][col] == player1:
+                    score += 9999 #maximizer can win
+                else:
+                    score -= 10 
+            else:
+                if grid[row][col] == player2:
+                    score -= 9999 #minimizer can win
+                else:
+                    score += 10
+
+        #check for two in a row below empty space
+        elif row != 0 and row < n_rows - 1 and grid[row][col] == grid[row + 1][col]:
+            if grid[row][col] == player1:
+                score += 1
+            else:
+                score -= 1
+    
+    #check for a horizontal two or three in a row with empty space to the left
+    for row in range(n_rows):
+        start = 0
+        end = 0
+        while end < n_cols:
+            #find the first non-empty space in the row
+            if grid[row][start] == 0:
+                start += 1
+                end += 1
+            else:
+                #find the end of connected pieces
+                while end + 1 < n_cols and grid[row][end + 1] == grid[row][start]:
+                    end += 1
+                
+                #weight score based on number of empty spaces
+                spaces = 0
+                if (start > 0 and grid[row][start - 1] == 0): spaces += 1
+                if (end < n_cols - 1 and grid[row][end + 1] == 0): spaces += 1
+
+                #three in a row
+                if end - start == 2:
+                    if player == player1:
+                        if grid[row][col] == player1:
+                            score += 9999 if spaces > 0 else 0 #maximizer can win if there are empty spaces
+                        else:
+                            score -= 15 * spaces 
+                    else:
+                        if grid[row][col] == player2:
+                            score -= 9999 if spaces > 0 else 0 #minimizer can win if there are empty spaces
+                        else:
+                            score += 15 * spaces
+
+                #two in a row
+                elif end - start == 1:
+                    if grid[row][start] == player1:
+                        score += 2 * spaces
+                    else:
+                        score -= 2 * spaces
+                
+                end += 1
+                start = end
+    
+    #check for a diagonal two or three in a row with empty space to the left
+     
+
+    return score
+ 
 
 #recursive implementation of minimax
 def minimax(grid: list[list[int]], depth: int, player: int) -> list[int, int]:
     #base cases
     if depth == 0:
-        return [None, evalGrid(grid)]
+        return [None, evalGrid(grid, player)]
     if boardFull(grid):
         return [None, 0]
     
@@ -33,7 +111,7 @@ def minimax(grid: list[list[int]], depth: int, player: int) -> list[int, int]:
             else:
                 #recursive call
                 score = minimax(newGrid, depth - 1, player2)[1]
-
+            
             #save the best move and score
             if score > bestScore:
                 bestScore = score
@@ -123,35 +201,18 @@ def printGrid(grid: list[list[int]]):
         print(*row)
         
 if __name__ == "__main__":
-    '''grid = [[0, 0, 1, 0, 0],
-            [0, 0, 2, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 2, 0, 0],
-            [0, 0, 1, 0, 0]]
-    
-    print(getValidMoves(grid))
-
-    dropPiece(grid, 0, player1)
-
-    printGrid(grid)
-
-    print(playerWon(grid, player1, 0))
-
-    dropPiece(grid, 0, player1)
-    dropPiece(grid, 0, player1)
-    dropPiece(grid, 0, player1)
-    printGrid(grid)
-    print(playerWon(grid, player1, 0))'''
 
     grid = [[0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 0],
-            [0, 2, 2, 1, 0],
-            [0, 2, 1, 2, 1]]
+            [0, 1, 2, 2, 0],
+            [0, 2, 1, 1, 1],
+            [0, 2, 1, 1, 1]]
     
     printGrid(grid)
     
     
-    print(minimax(grid, 2, player1))
+    
+    print(evalGrid(grid, player2))
+    print(minimax(grid, 2, player2))
 
 

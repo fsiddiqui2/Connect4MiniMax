@@ -1,4 +1,4 @@
-import random
+from minimax import minimax 
 
 #initialize grid
 cols = 5
@@ -23,16 +23,14 @@ while not(boardFull or win):
 
     # -- read in move -- #
     
-    if True: #player == 1: #player's move
+    if player == 1: #player's move
         move = int(input("Select a column: ")) 
         while move < 0 or move >= cols or grid[0][move] != 0:
             print("Column is invalid or full, select another column")
             move = int(input("Select a column: "))
     
     else: #computers move
-        move = random.randint(0, cols - 1)
-        while grid[0][move] != 0:
-            move = random.randint(0, cols - 1)
+        move = minimax(grid, 4, player)[0]
         print(f"Computer's move: {move}")
 
     for row in range(rows - 1, -1, -1):
