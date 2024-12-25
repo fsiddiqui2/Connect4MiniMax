@@ -97,7 +97,7 @@ def minimax(grid: list[list[int]], depth: int, player: int) -> list[int, int]:
     
     #maximizer's turn
     if player == player1:
-        bestScore = -9999
+        bestScore = -99999999
         bestMove = -1
         for col in getValidMoves(grid):
             
@@ -121,7 +121,7 @@ def minimax(grid: list[list[int]], depth: int, player: int) -> list[int, int]:
 
     #minimizer's turn
     else: #player == player2
-        bestScore = 9999
+        bestScore = 99999999
         bestMove = -1
         for col in getValidMoves(grid):
 

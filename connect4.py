@@ -1,8 +1,8 @@
 from minimax import minimax 
 
 #initialize grid
-cols = 5
-rows = 5
+cols = 7
+rows = 6
 grid = [[0 for x in range(cols)] for y in range(rows)]
 
 for row in grid:
