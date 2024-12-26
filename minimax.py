@@ -13,6 +13,22 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
     n_cols = len(grid[0])
 
     #check for a vertical two or three in a row with empty space above
+    score += verticalEval(grid, player)
+    
+    #check for a horizontal two or three in a row
+    score += horizontalEval(grid, player)
+    
+    #check for a diagonal two or three in a row with empty space to the left
+    score += diagonalEval(grid, player)
+
+    return score
+
+def verticalEval(grid: list[list[int]], player: int):
+    score = 0;
+    n_rows = len(grid)
+    n_cols = len(grid[0])
+
+    #check for a vertical two or three in a row with empty space above
     for col in range(n_cols):
         #find first empty space in column
         row = 0
@@ -39,8 +55,13 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
                 score += 1
             else:
                 score -= 1
-    
-    #check for a horizontal two or three in a row with empty space to the left
+    return score
+
+def horizontalEval(grid: list[list[int]], player: int):
+    score = 0;
+    n_rows = len(grid)
+    n_cols = len(grid[0])
+
     for row in range(n_rows):
         start = 0
         end = 0
@@ -64,12 +85,12 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
                 #three in a row
                 if end - start == 2:
                     if player == player1:
-                        if grid[row][col] == player1:
+                        if grid[row][start] == player1:
                             score += 15 * spaces #maximizer not guaranteed to win, unless it can place direcly into the empty spaces
                         else:
                             score -= 15 * spaces 
                     else:
-                        if grid[row][col] == player2:
+                        if grid[row][start] == player2:
                             score -= 15 * spaces
                         else:
                             score += 15 * spaces
@@ -88,12 +109,14 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
                 
                 end += 1
                 start = end
-    
-    #check for a diagonal two or three in a row with empty space to the left
-     
+    return score
+
+def diagonalEval(grid: list[list[int]], player: int):
+    score = 0;
+    n_rows = len(grid)
+    n_cols = len(grid[0])
 
     return score
- 
 
 #recursive implementation of minimax
 def minimax(grid: list[list[int]], depth: int, player: int) -> list[int, int]:
