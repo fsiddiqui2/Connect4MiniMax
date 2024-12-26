@@ -32,8 +32,9 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
                 else:
                     score += 10
 
-        #check for two in a row below empty space
-        elif row != 0 and row < n_rows - 1 and grid[row][col] == grid[row + 1][col]:
+        #check for two in a row below two empty spaces
+        #row > 1 ensures two empty spaces above 
+        elif row > 1 and row < n_rows - 1 and grid[row][col] == grid[row + 1][col]:
             if grid[row][col] == player1:
                 score += 1
             else:
@@ -54,6 +55,8 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
                     end += 1
                 
                 #weight score based on number of empty spaces
+                #for three in a row: 0 1 1 1 0 > 0 1 1 1 = 1 1 1 0
+                
                 spaces = 0
                 if (start > 0 and grid[row][start - 1] == 0): spaces += 1
                 if (end < n_cols - 1 and grid[row][end + 1] == 0): spaces += 1
@@ -62,21 +65,26 @@ def evalGrid(grid: list[list[int]], player: int) -> int:
                 if end - start == 2:
                     if player == player1:
                         if grid[row][col] == player1:
-                            score += 9999 if spaces > 0 else 0 #maximizer can win if there are empty spaces
+                            score += 15 * spaces #maximizer not guaranteed to win, unless it can place direcly into the empty spaces
                         else:
                             score -= 15 * spaces 
                     else:
                         if grid[row][col] == player2:
-                            score -= 9999 if spaces > 0 else 0 #minimizer can win if there are empty spaces
+                            score -= 15 * spaces
                         else:
                             score += 15 * spaces
 
                 #two in a row
                 elif end - start == 1:
+                    #weight based on spaces
+                    #for two in a row: 0 0 1 1 = 0 1 1 0 = 1 1 0 0
+
+                    if (start > 1 and grid[row][start - 2] == 0 and grid[row][start - 2] == 0): spaces += 1
+                    if (end < n_cols - 2 and grid[row][end + 1] == 0 and grid[row][end + 2] == 0): spaces += 1
                     if grid[row][start] == player1:
-                        score += 2 * spaces
+                        score += 5 if spaces >= 2 else 0
                     else:
-                        score -= 2 * spaces
+                        score -= 5 if spaces >= 2 else 0
                 
                 end += 1
                 start = end
