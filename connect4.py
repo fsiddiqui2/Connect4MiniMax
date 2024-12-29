@@ -11,27 +11,27 @@ win = False
 winRows = []
 winCols = []
 
-def printGrid(grid):
+def printGrid(grid: list[list[int]]):
     for row in grid:
         print(*row)
 
 def getValidMoves(grid: list[list[int]]) -> list[int]:
     return [col for col in range(len(grid[0])) if grid[0][col] == 0]
 
-def getPlayerMove(grid):
+def getPlayerMove(grid: list[list[int]]) -> int:
     move = int(input("Select a column: ")) 
     while move not in getValidMoves(grid):
         print("Column is invalid or full, select another column")
         move = int(input("Select a column: "))
     return move
 
-def updateGrid(grid, move, player):
+def updateGrid(grid: list[list[int]], move: int, player: int):
     for row in range(len(grid) - 1, -1, -1):
         if grid[row][move] == 0:
             grid[row][move] = player
             return
 
-def playerWon(grid, player, move) -> tuple[bool, list[int], list[int]]:
+def playerWon(grid: list[list[int]], player: int, move: int) -> tuple[bool, list[int], list[int]]:
     cols = len(grid[0])
     rows = len(grid)
 
@@ -88,10 +88,13 @@ def playerWon(grid, player, move) -> tuple[bool, list[int], list[int]]:
     
     return (False, [], [])
 
+def boardFull(grid: list[list[int]]) -> bool:
+    return not(0 in grid[0])
+
 if __name__ == "__main__":
     printGrid(grid)
 
-    while not(boardFull or win):
+    while not(boardFull(grid) or win):
         # -- switch player -- #
         player = 1 if turn % 2 == 0 else 2
 
@@ -106,9 +109,6 @@ if __name__ == "__main__":
             
         # -- check for win -- #
         win, winRows, winCols = playerWon(grid, player, move)
-
-        # -- check for tie -- #
-        boardFull = not(0 in grid[0])
         
         # -- toggle turn -- #
         turn += 1
@@ -117,12 +117,12 @@ if __name__ == "__main__":
 
 
 
-    if boardFull and not win:
+    if boardFull(grid) and not win:
         print("Tie!")
     else:
         print(f"{"Computer " if player == 2 else "Player "} wins!")
 
-    for i in range(4):
-        grid[winRows[i]][winCols[i]] = "X"
+        for i in range(4):
+            grid[winRows[i]][winCols[i]] = "X"
 
     printGrid(grid)
