@@ -123,7 +123,12 @@ function App() {
       <br></br>
 
       <button onClick={() => resetGame()}>Reset</button>
+
+      <footer>
+        <p>Made by <a href="https://github.com/fsiddiqui2" target="_blank">fsiddiqui2</a> | Icons from <a href="https://www.freepik.com/" target="_blank" title="freepik.com">Freepik</a></p>
+      </footer>
     </div>
+    
   );
 }
 
