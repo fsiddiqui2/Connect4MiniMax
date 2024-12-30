@@ -1,4 +1,7 @@
 import React, {useState, useEffect, use} from 'react';
+import './App.css';
+import yellowToken from './media/token-yellow.png'
+import redToken from './media/token-red.png'
 
 
 function App() {
@@ -8,6 +11,9 @@ function App() {
   const [tie, setTie] = useState(false);
   const [winRows, setWinRows] = useState([]);
   const [winCols, setWinCols] = useState([]);
+
+  const controller = new AbortController();
+  const signal = controller.signal;
 
   useEffect(() => {
     setUp()
@@ -27,10 +33,17 @@ function App() {
   }
 
   const playerMove = async (col) => {
+    if (turn === 0){
+      setUp()
+    }
+    
+    if (win != 0 || tie || turn % 2 == 1) {
+      return
+    }
 
     const validFetch = await fetch('/valid-moves')
     const valid = await validFetch.json()
-    if (!valid.moves.includes(col) || win != 0 || tie) {
+    if (!valid.moves.includes(col)) {
       return
     }
 
@@ -56,42 +69,58 @@ function App() {
     if (win != 0 || tie) {
       return
     }
+    try{
+      const res = await fetch('/minimax', {method: "POST", body : JSON.stringify({player: 2}), headers: {"Content-Type": "application/json"}, signal: signal})
+      const result = await res.json()
 
-    const res = await fetch('/minimax', {method: "POST", body : JSON.stringify({player: 2}), headers: {"Content-Type": "application/json"}})
-    const result = await res.json()
+      setGrid(result.grid)
+      setWin(result.win)
+      setTie(result.tie)
+      setWinRows(result.winRows)
+      setWinCols(result.winCols)
 
-    setGrid(result.grid)
-    setWin(result.win)
-    setTie(result.tie)
-    setWinRows(result.winRows)
-    setWinCols(result.winCols)
-
-    setTurn(turn + 1)
+      setTurn(turn + 1)
+    }
+    catch(err) {
+      if (signal.aborted){
+        console.log("Fetch Aborted")
+      }
+      else {
+        console.log(err)
+      }
+    }
   }
 
   const resetGame = async () => {
+    controller.abort()
     const res = await fetch('/reset')
     const result = await res.json()
     setGrid(result.grid)
     setWin(0)
     setTie(false)
+    setTurn(0)
 
   }
 
-  return (
-    <div style={{margin: "auto", width: "50%", height: "50%", border: "1px solid black", padding: "10px"}}>
-      <h1 style={{color: "blue"}}>Connect 4</h1>
 
-      <h2>{win === 1 ? "You Win!" : win === 2 ? "You Lose!" : tie ? "Tie!" : ""}</h2>
+  return (
+    <div className = "App">
+      <h1>Connect 4</h1>
+
+      <h2>{win === 1 ? "You Win!" : win === 2 ? "You Lose!" : tie ? "Tie!" : turn % 2 == 0 ? "Your Turn" : "Computer's Turn"}</h2>
 
       <table>
         <tbody>
           <tr>
             {grid[0].map((col, j) => <th key={j}><button onClick={() => playerMove(j)}></button></th>)}
           </tr>
-          {grid.map((row, i) => <tr key={i}>{row.map((val, j) => <td style={{color: val === 1 ? "blue" : val === 2 ? "red" : "black"}} key={j}>{val === 0 ? "•" : "O"}</td>)}</tr>)}
+          {grid.map((row, i) => <tr key={i}>{row.map((val, j) => <td key = {j}>
+            {val === 1 ? <img className="token" src={yellowToken} alt="yellow"/> : val === 2 ? <img className="token" src={redToken} alt="red"/> : null}
+          </td>)}</tr>)}
         </tbody>
       </table>
+
+      <br></br>
 
       <button onClick={() => resetGame()}>Reset</button>
     </div>

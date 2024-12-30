@@ -78,7 +78,7 @@ def minimax_move():
     player = 2
     winRows = []
     winCols = []
-    move = minimax(grid, 4, player)[0]
+    move = minimax(grid, 6, player)[0]
 
 
     updateGrid(grid, move, player)

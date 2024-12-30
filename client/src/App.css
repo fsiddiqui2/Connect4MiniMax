@@ -1,5 +1,9 @@
 .App {
   text-align: center;
+  margin: auto;
+  width: 50vw;
+  height: 50vw;
+  padding: 10px;
 }
 
 .App-logo {
@@ -35,4 +39,52 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+table{
+  width: 40vw;
+  height: 40vw;
+  border-spacing: 0 0;
+  table-layout: fixed;
+  margin: auto;
+}
+table button {
+  width: calc(40vw / 7 - 1vw);
+  height: calc(40vw / 7 - 1vw);
+}
+
+td {
+  border: 1px solid darkblue;
+  box-sizing: border-box;
+  width: calc(40vw / 7);
+  height: calc(40vw / 7);
+  text-align: center;
+  overflow: hidden;
+  background-color: rgb(106, 196, 227);
+  
+}
+
+.token {
+  width: calc(40vw / 7 - 1vw);
+  height: calc(40vw / 7 - 1vw);
+}
+
+.player {
+  color: yellow;
+  font-size: 2em;
+  padding: 0px;
+  margin: 0px;
+  border-spacing: 0 0;
+}
+
+.computer {
+  color: red;
+  font-size: 2em;
+  padding: 0px;
+  margin: 0px;
+  border-spacing: 0 0;
+}
+
+h1 {
+  color: blue;
 }
