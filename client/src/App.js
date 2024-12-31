@@ -25,6 +25,10 @@ function App() {
     }
   }, [win, tie])
 
+  function timeout(delay) {
+    return new Promise( res => setTimeout(res, delay) );
+  }
+
   const setUp = async () => {
     const data = {cols: 7, rows: 6}
     const res = await fetch('/setup', {method: "POST", body: JSON.stringify(data), headers: {"Content-Type": "application/json"}})
@@ -52,12 +56,14 @@ function App() {
     const result = await res.json()
     
     setGrid(result.grid)
+    setTurn(turn + 1)
     setWin(result.win)
     setTie(result.tie)
+    await timeout(1000);
     setWinRows(result.winRows)
     setWinCols(result.winCols)
 
-    setTurn(turn + 1)
+    
   }
 
   useEffect(() => {
@@ -74,12 +80,14 @@ function App() {
       const result = await res.json()
 
       setGrid(result.grid)
+      setTurn(turn + 1)
       setWin(result.win)
       setTie(result.tie)
+      await timeout(1000);
       setWinRows(result.winRows)
       setWinCols(result.winCols)
 
-      setTurn(turn + 1)
+      
     }
     catch(err) {
       if (signal.aborted){
@@ -112,10 +120,16 @@ function App() {
       <table>
         <tbody>
           <tr>
-            {grid[0].map((col, j) => <th key={j}><button onClick={() => playerMove(j)}></button></th>)}
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
           </tr>
-          {grid.map((row, i) => <tr key={i}>{row.map((val, j) => <td key = {j}>
-            {val === 1 ? <img className="token" src={yellowToken} alt="yellow"/> : val === 2 ? <img className="token" src={redToken} alt="red"/> : null}
+          {grid.map((row, i) => <tr key={i}>{row.map((val, j) => <td key = {j} onClick={() => playerMove(j)}>
+            {val === 1 ? <img className={"token" + " row" + (i + 1)} src={yellowToken} alt="yellow"/> : val === 2 ? <img className={"token" + " row" + (i + 1)} src={redToken} alt="red"/> : null}
           </td>)}</tr>)}
         </tbody>
       </table>
