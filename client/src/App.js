@@ -14,6 +14,7 @@ function App() {
   const [start, setStart] = useState(false);
   const [depth, setDepth] = useState(4);
   const [firstPlayer, setFirstPlayer] = useState(1); // 1 = yellow (player), 2 = red (computer)
+  const [computer, setComputer] = useState("minimax")
 
   const controller = new AbortController();
   const signal = controller.signal;
@@ -29,10 +30,12 @@ function App() {
   }, [win, tie])
 
   function timeout(delay) {
+    console.log("timeout")
     return new Promise( res => setTimeout(res, delay) );
   }
 
   const setUp = async () => {
+    console.log("setup")
     controller.abort()
     const data = {cols: 7, rows: 6}
     const res = await fetch('/setup', {method: "POST", body: JSON.stringify(data), headers: {"Content-Type": "application/json"}})
@@ -44,20 +47,42 @@ function App() {
     setStart(true)
   }
 
-  const stopGame = () => {
+  const stopGame = async () => {
+    console.log("stop game")
     controller.abort()
     setStart(false)
   }
 
+  const resetGrid = async () => {
+    console.log("reset grid")
+    const res = await fetch('/reset')
+    const result = await res.json()
+    setGrid(result.grid)
+  }
+
+  const resetGame = async () => {
+    console.log("reset game")
+    controller.abort()
+    const res = await fetch('/reset')
+    const result = await res.json()
+    setGrid(result.grid)
+    setWin(0)
+    setTie(false)
+    setTurn(0)
+
+  }
+
   const playerMove = async (col) => {
-    if (turn === 0){
-      setUp()
-    }
+    console.log("player move")
      
     const playerTurn = firstPlayer === 1 ? turn % 2 == 0 : turn % 2 == 1
 
     if (win != 0 || tie || !playerTurn) {
       return
+    }
+
+    if (turn === 0){
+      setUp()
     }
 
     const validFetch = await fetch('/valid-moves')
@@ -81,22 +106,22 @@ function App() {
   }
 
   useEffect(() => {
+    console.log("use effect: computer move?")
     const computerTurn = firstPlayer === 2 ? turn % 2 == 0 : turn % 2 == 1
-    if (computerTurn) {
+    if (computerTurn && start) {
       computerMove()
     }
   }, [turn, start])
   const computerMove = async () => {
+    console.log("computer move")
     if (win != 0 || tie) {
       return
     }
-    if (turn === 0){
-      setUp()
-    }
     try{
-      const res = await fetch('/minimax', {method: "POST", body : JSON.stringify({player: 2, depth: depth}), headers: {"Content-Type": "application/json"}, signal: signal})
+      const res = await fetch('/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth}), headers: {"Content-Type": "application/json"}, signal: signal})
       const result = await res.json()
-
+      console.log(signal.aborted)
+      console.log("computer moving...")
       setGrid(result.grid)
       setTurn(turn + 1)
       setWin(result.win)
@@ -110,6 +135,7 @@ function App() {
     catch(err) {
       if (signal.aborted){
         console.log("Fetch Aborted")
+        return
       }
       else {
         console.log(err)
@@ -117,16 +143,6 @@ function App() {
     }
   }
 
-  const resetGame = async () => {
-    controller.abort()
-    const res = await fetch('/reset')
-    const result = await res.json()
-    setGrid(result.grid)
-    setWin(0)
-    setTie(false)
-    setTurn(0)
-
-  }
 
   const displayTurn = () =>{
     if (win == 1 || win == 2 || tie) {
@@ -147,8 +163,14 @@ function App() {
 
       {!start ? 
         <form>
+          <label>Computer Algorithm: </label>
+          <select value={computer} onChange={(event) => {setComputer(event.target.value)}}>
+            <option value="minimax">minimax</option>
+            <option value="random">random</option>
+          </select>
+          
           <label>Computer Depth: </label>
-          <select style={{margin: "5px"}} value={depth} onChange={(event) => {setDepth(parseInt(event.target.value))}}>
+          <select value={depth} onChange={(event) => {setDepth(parseInt(event.target.value))}}>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -158,8 +180,6 @@ function App() {
             <option value="7">7</option>
           </select>
 
-
-
           <label>First to Move: </label>
           <select value={firstPlayer} onChange={(event) => {setFirstPlayer(parseInt(event.target.value))}}>
             <option value="1">Player</option>
@@ -168,7 +188,7 @@ function App() {
           
         </form>
       : 
-        <p>Computer Depth: {depth} | First to Move: {firstPlayer === 1 ? "Player" : "Computer"}</p>
+        <p>Algorithm: {computer} | Computer Depth: {depth} | First to Move: {firstPlayer === 1 ? "Player" : "Computer"}</p>
       }
 
       <br></br>

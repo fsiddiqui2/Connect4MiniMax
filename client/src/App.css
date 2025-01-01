@@ -53,6 +53,10 @@ table button {
   height: calc(40vw / 7 - 1vw);
 }
 
+select {
+  margin: 5px;
+}
+
 td {
   border: 1px solid darkblue;
   box-sizing: border-box;
