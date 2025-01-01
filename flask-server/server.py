@@ -72,13 +72,14 @@ def move():
 def minimax_move():
     data = request.json
     player = data.get('player')
+    depth = data.get('depth')
 
     win = 0
     tie = False
     player = 2
     winRows = []
     winCols = []
-    move = minimax(grid, 6, player)[0]
+    move = minimax(grid, depth, player)[0]
 
 
     updateGrid(grid, move, player)
