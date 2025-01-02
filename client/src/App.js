@@ -16,6 +16,7 @@ function App() {
   const [firstPlayer, setFirstPlayer] = useState(1); // 1 = yellow (player), 2 = red (computer)
   const [computer, setComputer] = useState("minimax")
   const [gameID, setGameID] = useState(0);
+  const [playerColor, setPlayerColor] = useState("yellow");
 
   const idref = useRef();
   idref.current = gameID;
@@ -67,7 +68,7 @@ function App() {
     setTurn(turn + 1)
     setWin(result.win)
     setTie(result.tie)
-    await timeout(1000);
+    await timeout(1000); //delay to wait for animation
     setWinRows(result.winRows)
     setWinCols(result.winCols)
     
@@ -86,6 +87,7 @@ function App() {
       return
     }
     try{
+      await timeout(1000);
       const res = await fetch('/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth, gameID: gameID, grid: grid}), headers: {"Content-Type": "application/json"}})
       const result = await res.json()
       console.log("gameID: " + gameID + " result gameID: " + result.gameID + " gameIDref: " + idref.current)
@@ -97,7 +99,7 @@ function App() {
       setTurn(turn + 1)
       setWin(result.win)
       setTie(result.tie)
-      await timeout(1000);
+      await timeout(1000); //delay to wait for animation
       setWinRows(result.winRows)
       setWinCols(result.winCols)
     }
@@ -153,6 +155,13 @@ function App() {
             <option value="2">Computer</option>
           </select>
           </label>
+
+          <label>Player Color:
+          <select value={playerColor} onChange={(event) => {setPlayerColor(event.target.value)}}>
+            <option value="yellow">Yellow</option>
+            <option value="red">Red</option>
+          </select>
+          </label>
           
         </form>
       : 
@@ -179,7 +188,7 @@ function App() {
                 <th>7</th>
               </tr>
               {grid.map((row, i) => <tr key={i}>{row.map((val, j) => <td key = {j} onClick={() => playerMove(j)}>
-                {val === 1 ? <img className={"token" + " row" + (i + 1)} src={yellowToken} alt="yellow"/> : val === 2 ? <img className={"token" + " row" + (i + 1)} src={redToken} alt="red"/> : null}
+                {val === 1 ? <img className={"token" + " row" + (i + 1)} src={playerColor === "yellow" ? yellowToken : redToken} alt="player"/> : val === 2 ? <img className={"token" + " row" + (i + 1)} src={playerColor === "yellow" ? redToken : yellowToken} alt="computer"/> : null}
               </td>)}</tr>)}
             </tbody>
           </table>
