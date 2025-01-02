@@ -76,6 +76,7 @@ def computer_move():
     player = data.get('player')
     depth = data.get('depth')
     computer = data.get('computer')
+    gameID = data.get('gameID')
 
     win = 0
     tie = False
@@ -103,7 +104,7 @@ def computer_move():
     elif boardFull(grid):
         tie = True
 
-    return jsonify({"success": True, "grid": grid, "win": win, "tie": tie, "player": player, "winRows": winRows, "winCols": winCols})
+    return jsonify({"success": True, "grid": grid, "win": win, "tie": tie, "player": player, "winRows": winRows, "winCols": winCols, "gameID": gameID})
 
 if __name__ == "__main__":
     app.run(debug=True)

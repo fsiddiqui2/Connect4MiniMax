@@ -1,4 +1,4 @@
-import React, {useState, useEffect, use} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import './App.css';
 import yellowToken from './media/token-yellow.png'
 import redToken from './media/token-red.png'
@@ -15,9 +15,10 @@ function App() {
   const [depth, setDepth] = useState(4);
   const [firstPlayer, setFirstPlayer] = useState(1); // 1 = yellow (player), 2 = red (computer)
   const [computer, setComputer] = useState("minimax")
+  const [gameID, setGameID] = useState(0);
 
-  const controller = new AbortController();
-  const signal = controller.signal;
+  const idref = useRef();
+  idref.current = gameID;
 
   useEffect(() => {
     //setUp()
@@ -36,7 +37,8 @@ function App() {
 
   const setUp = async () => {
     console.log("setup")
-    controller.abort()
+    setGameID(gameID + 1)
+
     const data = {cols: 7, rows: 6}
     const res = await fetch('/setup', {method: "POST", body: JSON.stringify(data), headers: {"Content-Type": "application/json"}})
     const result = await res.json()
@@ -49,7 +51,6 @@ function App() {
 
   const stopGame = async () => {
     console.log("stop game")
-    controller.abort()
     setStart(false)
   }
 
@@ -62,7 +63,6 @@ function App() {
 
   const resetGame = async () => {
     console.log("reset game")
-    controller.abort()
     const res = await fetch('/reset')
     const result = await res.json()
     setGrid(result.grid)
@@ -81,9 +81,9 @@ function App() {
       return
     }
 
-    if (turn === 0){
+    /*if (turn === 0){
       setUp()
-    }
+    }*/
 
     const validFetch = await fetch('/valid-moves')
     const valid = await validFetch.json()
@@ -118,9 +118,12 @@ function App() {
       return
     }
     try{
-      const res = await fetch('/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth}), headers: {"Content-Type": "application/json"}, signal: signal})
+      const res = await fetch('/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth, gameID: gameID}), headers: {"Content-Type": "application/json"}})
       const result = await res.json()
-      console.log(signal.aborted)
+      console.log("gameID: " + gameID + " result gameID: " + result.gameID + " gameIDref: " + idref.current)
+      if(idref.current !== result.gameID) {
+        return
+      }
       console.log("computer moving...")
       setGrid(result.grid)
       setTurn(turn + 1)
@@ -129,17 +132,9 @@ function App() {
       await timeout(1000);
       setWinRows(result.winRows)
       setWinCols(result.winCols)
-
-      
     }
     catch(err) {
-      if (signal.aborted){
-        console.log("Fetch Aborted")
-        return
-      }
-      else {
-        console.log(err)
-      }
+      console.log(err)
     }
   }
 
