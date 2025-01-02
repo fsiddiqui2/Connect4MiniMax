@@ -21,10 +21,6 @@ function App() {
   idref.current = gameID;
 
   useEffect(() => {
-    //setUp()
-  }, [])
-
-  useEffect(() => {
     if(win != 0 || tie) {
       console.log("game complete!")
     }
@@ -35,14 +31,13 @@ function App() {
     return new Promise( res => setTimeout(res, delay) );
   }
 
-  const setUp = async () => {
+  const setUp = () => {
     console.log("setup")
     setGameID(gameID + 1)
 
     const data = {cols: 7, rows: 6}
-    const res = await fetch('/setup', {method: "POST", body: JSON.stringify(data), headers: {"Content-Type": "application/json"}})
-    const result = await res.json()
-    setGrid(result.grid)
+    const newGrid = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
+    setGrid(newGrid)
     setWin(0)
     setTie(false)
     setTurn(0)
@@ -54,23 +49,6 @@ function App() {
     setStart(false)
   }
 
-  const resetGrid = async () => {
-    console.log("reset grid")
-    const res = await fetch('/reset')
-    const result = await res.json()
-    setGrid(result.grid)
-  }
-
-  const resetGame = async () => {
-    console.log("reset game")
-    const res = await fetch('/reset')
-    const result = await res.json()
-    setGrid(result.grid)
-    setWin(0)
-    setTie(false)
-    setTurn(0)
-
-  }
 
   const playerMove = async (col) => {
     console.log("player move")
@@ -81,17 +59,7 @@ function App() {
       return
     }
 
-    /*if (turn === 0){
-      setUp()
-    }*/
-
-    const validFetch = await fetch('/valid-moves')
-    const valid = await validFetch.json()
-    if (!valid.moves.includes(col)) {
-      return
-    }
-
-    const data = {column: col, player: 1}
+    const data = {column: col, player: 1, grid: grid}
     const res = await fetch('/move', {method: "POST", body: JSON.stringify(data), headers: {"Content-Type": "application/json"}})
     const result = await res.json()
     
@@ -118,7 +86,7 @@ function App() {
       return
     }
     try{
-      const res = await fetch('/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth, gameID: gameID}), headers: {"Content-Type": "application/json"}})
+      const res = await fetch('/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth, gameID: gameID, grid: grid}), headers: {"Content-Type": "application/json"}})
       const result = await res.json()
       console.log("gameID: " + gameID + " result gameID: " + result.gameID + " gameIDref: " + idref.current)
       if(idref.current !== result.gameID) {
@@ -158,13 +126,15 @@ function App() {
 
       {!start ? 
         <form>
-          <label>Computer Algorithm: </label>
+          <label>Computer Type: 
           <select value={computer} onChange={(event) => {setComputer(event.target.value)}}>
-            <option value="minimax">minimax</option>
-            <option value="random">random</option>
+            <option value="minimax">minimax algorithm</option>
+            <option value="random">random moves</option>
           </select>
+          </label>
           
-          <label>Computer Depth: </label>
+          {computer === "minimax" ? 
+          <label>Computer Difficulty: 
           <select value={depth} onChange={(event) => {setDepth(parseInt(event.target.value))}}>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -174,12 +144,15 @@ function App() {
             <option value="6">6</option>
             <option value="7">7</option>
           </select>
+          </label>
+          : null}
 
-          <label>First to Move: </label>
+          <label>First to Move: 
           <select value={firstPlayer} onChange={(event) => {setFirstPlayer(parseInt(event.target.value))}}>
             <option value="1">Player</option>
             <option value="2">Computer</option>
           </select>
+          </label>
           
         </form>
       : 
@@ -212,8 +185,6 @@ function App() {
           </table>
 
           <br></br>
-
-          <button onClick={() => resetGame()}>Reset</button>
         </div>
       ) : null}
 
