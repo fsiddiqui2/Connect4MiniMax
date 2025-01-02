@@ -3,9 +3,11 @@ import './App.css';
 import yellowToken from './assets/token-yellow.png'
 import redToken from './assets/token-red.png'
 
+//python flask server
 const proxy = "http://127.0.0.1:5000";
 
 function App() {
+  //game variables
   const [grid, setGrid] = useState([[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]);
   const [win, setWin] = useState(0);
   const [turn, setTurn] = useState(0);
@@ -13,8 +15,8 @@ function App() {
   const [winRows, setWinRows] = useState([]);
   const [winCols, setWinCols] = useState([]);
   const [start, setStart] = useState(false);
-  const [depth, setDepth] = useState(4);
-  const [firstPlayer, setFirstPlayer] = useState(1); // 1 = yellow (player), 2 = red (computer)
+  const [depth, setDepth] = useState(4); //depth of minimax
+  const [firstPlayer, setFirstPlayer] = useState(1); // 1 =  player, 2 = computer
   const [computer, setComputer] = useState("minimax")
   const [gameID, setGameID] = useState(0);
   const [playerColor, setPlayerColor] = useState("yellow");
@@ -28,17 +30,23 @@ function App() {
     }
   }, [win, tie])
 
+  //helper functions
+
+  //delay function to wait for animation
   function timeout(delay) {
     console.log("timeout")
     return new Promise( res => setTimeout(res, delay) );
   }
 
+  //set up game
   const setUp = () => {
     console.log("setup")
-    setGameID(gameID + 1)
+    setGameID(gameID + 1) //increment gameID
 
     const data = {cols: 7, rows: 6}
     const newGrid = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
+    
+    //reset game variables
     setGrid(newGrid)
     setWin(0)
     setTie(false)
@@ -46,39 +54,47 @@ function App() {
     setStart(true)
   }
 
+  //stop game
   const stopGame = async () => {
     console.log("stop game")
     setStart(false)
   }
 
 
+  //gets player move and updates variables and grid accordingly
+  //must be async for fetch request
   const playerMove = async (col) => {
     console.log("player move")
-     
+    
     const playerTurn = firstPlayer === 1 ? turn % 2 == 0 : turn % 2 == 1
 
+    //skip player move if it is not their turn or game is over
     if (win != 0 || tie || !playerTurn) {
       return
     }
 
+    //send data as json to server
     const data = {column: col, player: 1, grid: grid}
     const res = await fetch(proxy +'/move', {method: "POST", body: JSON.stringify(data), headers: {"Content-Type": "application/json"}})
     console.log(res)
     const result = await res.json()
     
+    //update variables
     setGrid(result.grid)
     setTurn(turn + 1)
     setWin(result.win)
     setTie(result.tie)
-    await timeout(1000); //delay to wait for animation
+    await timeout(1000); //delay to wait for player token animation
     setWinRows(result.winRows)
     setWinCols(result.winCols)
     
   }
 
+  //runs every time turn changes or game is started/stopped 
   useEffect(() => {
     console.log("use effect: computer move?")
     const computerTurn = firstPlayer === 2 ? turn % 2 == 0 : turn % 2 == 1
+    //check if its the computer's turn and the game is started; if so, make a move
     if (computerTurn && start) {
       computerMove()
     }
@@ -89,19 +105,22 @@ function App() {
       return
     }
     try{
-      await timeout(1000);
+      await timeout(1000); //wait for player's token animation to finish
       const res = await fetch(proxy + '/computer-move', {method: "POST", body : JSON.stringify({player: 2, computer: computer, depth: depth, gameID: gameID, grid: grid}), headers: {"Content-Type": "application/json"}})
       const result = await res.json()
       console.log("gameID: " + gameID + " result gameID: " + result.gameID + " gameIDref: " + idref.current)
+      
+      //ignore a response from a previous game
       if(idref.current !== result.gameID) {
         return
       }
+      //update variables
       console.log("computer moving...")
       setGrid(result.grid)
       setTurn(turn + 1)
       setWin(result.win)
       setTie(result.tie)
-      await timeout(1000); //delay to wait for animation
+      await timeout(1000); //delay to wait for computer token animation
       setWinRows(result.winRows)
       setWinCols(result.winCols)
     }
@@ -111,6 +130,7 @@ function App() {
   }
 
 
+  //function to display whose turn it is or who won
   const displayTurn = () =>{
     if (win == 1 || win == 2 || tie) {
       return (win === 1 ? "You Win!" : win === 2 ? "You Lose!" : "Tie!");
