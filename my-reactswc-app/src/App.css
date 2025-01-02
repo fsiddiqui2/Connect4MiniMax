@@ -1,0 +1,99 @@
+.App {
+  text-align: center;
+  margin: auto;
+  width: 50vw;
+  height: 50vw;
+  padding: 10px;
+}
+
+table{
+  width: 40vw;
+  height: 40vw;
+  border-spacing: 0 0;
+  table-layout: fixed;
+  margin: auto;
+}
+table button {
+  width: calc(40vw / 7 - 1vw);
+  height: calc(40vw / 7 - 1vw);
+}
+
+select {
+  margin: 5px;
+}
+
+td {
+  border: 1px solid darkblue;
+  box-sizing: border-box;
+  width: calc(40vw / 7);
+  height: calc(40vw / 7);
+  text-align: center;
+  /*overflow: hidden;*/
+  background-color: rgb(106, 196, 227);
+  
+}
+
+.token {
+  width: calc(40vw / 7 - 1vw);
+  height: calc(40vw / 7 - 1vw);
+  animation-timing-function: linear;
+  animation: drop 1s ease-in-out;
+  animation-fill-mode: forwards;
+  
+}
+
+.row1{
+  --start_pos: calc(-1 * 40vw / 7);
+}
+.row2{
+  --start_pos: calc(-2 *40vw / 7);
+}
+.row3{
+  --start_pos: calc(-3 *40vw / 7);
+}
+.row4{
+  --start_pos: calc(-4 *40vw / 7);
+}
+.row5{
+  --start_pos: calc(-5 *40vw / 7);
+}
+.row6{
+  --start_pos: calc(-6 *40vw / 7);
+}
+.row7{
+  --start_pos: calc(-7 *40vw / 7);
+}
+.row8{
+  --start_pos: calc(-8 *40vw / 7);
+}
+.row9{
+  --start_pos: calc(-9 *40vw / 7);
+}
+.row10{
+  --start_pos: calc(-10 *40vw / 7);
+}
+
+@keyframes drop {
+  0% {
+    transform: translateY(var(--start_pos));
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.player {
+  color: yellow;
+  font-size: 2em;
+  padding: 0px;
+  margin: 0px;
+  border-spacing: 0 0;
+}
+
+.computer {
+  color: red;
+  font-size: 2em;
+  padding: 0px;
+  margin: 0px;
+  border-spacing: 0 0;
+}

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import cross_origin
 from connect4 import playerWon, updateGrid, getValidMoves, boardFull, printGrid
 from minimax import minimax
 import random
@@ -6,6 +7,7 @@ import random
 app = Flask(__name__)
 
 @app.post("/move")
+@cross_origin()
 def move():
     data = request.json
     column = data.get('column')
@@ -34,9 +36,11 @@ def move():
         success = True
         tie = True
 
-    return jsonify({"success": success, "grid": grid, "win": win, "tie": tie, "player": player, "winRows": winRows, "winCols": winCols})
+    response = jsonify({"success": success, "grid": grid, "win": win, "tie": tie, "player": player, "winRows": winRows, "winCols": winCols})
+    return response
 
 @app.post("/computer-move")
+@cross_origin()
 def computer_move():
     data = request.json
     player = data.get('player')
@@ -67,7 +71,8 @@ def computer_move():
     elif boardFull(grid):
         tie = True
 
-    return jsonify({"success": True, "grid": grid, "win": win, "tie": tie, "player": player, "winRows": winRows, "winCols": winCols, "gameID": gameID})
+    response = jsonify({"success": True, "grid": grid, "win": win, "tie": tie, "player": player, "winRows": winRows, "winCols": winCols, "gameID": gameID})
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)
