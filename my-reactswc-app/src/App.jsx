@@ -79,14 +79,16 @@ function App() {
     console.log(res)
     const result = await res.json()
     
-    //update variables
-    setGrid(result.grid)
-    setTurn(turn + 1)
-    setWin(result.win)
-    setTie(result.tie)
-    await timeout(1000); //delay to wait for player token animation
-    setWinRows(result.winRows)
-    setWinCols(result.winCols)
+    if(result.success === true){
+      //update variables
+      setGrid(result.grid)
+      setTurn(turn + 1)
+      setWin(result.win)
+      setTie(result.tie)
+      await timeout(1000); //delay to wait for player token animation
+      setWinRows(result.winRows)
+      setWinCols(result.winCols)
+    }
     
   }
 
