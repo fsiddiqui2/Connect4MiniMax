@@ -5,4 +5,4 @@ This project started when coding a connect 4 game for a school project. To take 
 ## Instructions for Use
 1. Install flask and react
 2. Clone this repo to a local repository 
-3. With the directory open, run `python flask-server/server.py` and `cd client; npm start` in different terminal windows
+3. With the directory open, run `python flask-server/server.py` and `cd my-reactswc-app; npm run dev` in different terminal windows
