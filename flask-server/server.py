@@ -1,10 +1,14 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import cross_origin
 from connect4 import playerWon, updateGrid, getValidMoves, boardFull, printGrid
 from minimax import minimax
 import random
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../client/dist", static_url_path="/")
+
+@app.route("/")
+def home():
+    return send_from_directory(app.static_folder, "index.html")
 
 @app.post("/move")
 @cross_origin() #allow cross origin to agree with CORS policy
@@ -86,4 +90,4 @@ def computer_move():
     return response
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()#debug=True)
